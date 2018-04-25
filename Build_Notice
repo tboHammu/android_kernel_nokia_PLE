@@ -1,0 +1,41 @@
+1. Kernel configuration files
+   arch/arm64/configs:
+   Nokia 6 (TA-1033/TA-1039/TA-1021/TA-1025): FIH-msm8937-perf_defconfig
+
+2. How to build
+
+  Prerequisites:
+
+    * ramdisk.img - root fs
+
+    * mkbootimg - boot.img generator
+
+    * The ARM cross-compiler
+      We recommend getting the CodeSourcery Lite compiler.
+      Or, you can also use prebuild executable binary which is included in
+      standard Android tree.
+
+  Step 1: Build Kernel (zImage)
+    $ cd kernel
+
+    $ export ARCH=arm64
+
+    $ export CROSS_COMPILE=<cross compile path with prefix>
+      NOTE: Please set the location and the prefix of the ARM cross-compiler.
+	        Please use the absolute path for this.
+	  ex) <cross compiler path>/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/bin/aarch64-linux-android-
+
+    $ make FIH-msm8937-perf_defconfig O=<output path>
+      NOTE: Please set a configuration file you want to build.
+
+    $ make O=<output path>
+
+    You can see arch/arm64/boot/Image.gz-dtb if you succeed in building the kernel.
+
+  Step 2: Assembling the boot.img
+    (In the output directory)
+
+ $ mkbootimg --kernel <output path>/arch/arm64/boot/Image.gz-dtb --ramdisk ramdisk.img --base 0x80000000 --pagesize 2048 \
+   --cmdline "console=ttyHSL0,115200,n8 androidboot.console=ttyHSL0 androidboot.hardware=qcom msm_rtb.filter=0x237 \
+   ehci-hcd.park=3 lpm_levels.sleep_disabled=1 androidboot.bootdevice=7824900.sdhci earlycon=msm_hsl_uart,0x78B0000" \
+   --output boot.img
